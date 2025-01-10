@@ -9,15 +9,10 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+  system.debugContext: 'true'
+
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
-
 - task: Checkout@1
   displayName: 'Checkout repository'
   inputs:
@@ -25,7 +20,10 @@ steps:
     fetchDepth: 1
     persistCredentials: true
 
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
 - script: |
-    echo This is a placeholder for further tasks.
-    echo All variables and steps should now resolve correctly.
-  displayName: 'Verify and run additional tasks'
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
