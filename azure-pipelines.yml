@@ -7,36 +7,18 @@ trigger:
       - '**/*.docx'  # Отслеживание изменений только в файлах .docx
 
 pool:
-  vmImage: 'ubuntu-latest'  # Образ агента для выполнения пайплайна
+  vmImage: 'ubuntu-latest'  # Использование образа Ubuntu для выполнения пайплайна
 
 steps:
-  - task: UsePythonVersion@0  # Использование Python (для обработки .docx файлов)
+  - task: UsePythonVersion@0  # Использование Python для обработки .docx файлов
     inputs:
-      versionSpec: '3.x'  # Установка нужной версии Python
+      versionSpec: '3.x'  # Установка Python 3.x
 
   - script: |
       python -m pip install --upgrade pip
       pip install python-docx  # Установка библиотеки для работы с .docx файлами
-    displayName: 'Install dependencies'
-
-  - task: Checkout@1  # Проверка исходного кода из репозитория
-    inputs:
-      clean: true
+    displayName: 'Install python-docx'
 
   - script: |
-      # Обработка .docx файлов: например, извлечение текста из каждого файла
-      for file in $(find . -name "*.docx"); do
-        echo "Processing $file"
-        python -c "
-import docx
-doc = docx.Document('$file')
-text = '\n'.join([para.text for para in doc.paragraphs])
-print(f'Text in {file}:\\n{text[:100]}...')  # Вывод первых 100 символов текста для проверки
-        "
-      done
+      echo "No .docx files found to process"
     displayName: 'Process .docx files'
-
-  - task: PublishBuildArtifacts@1  # Публикация артефактов, если нужно сохранить результат
-    inputs:
-      artifactName: 'processed-docx-files'  # Имя артефакта
-      publishLocation: 'Container'
