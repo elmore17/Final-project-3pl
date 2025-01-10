@@ -1,14 +1,27 @@
 trigger:
-    - main
+  branches:
+    include:
+      - main
 
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  systemDebugContext: 'true'  # Пример определения переменной
+
 steps:
   - task: Checkout@1
     inputs:
-      fetchDepth: 1  # Это позволяет быстро извлекать последний коммит
+      fetchDepth: 1
 
   - script: |
-      echo "Repository successfully fetched with fetchDepth 1"
-    displayName: 'Check repository'
+      echo "System Debug Context: $(systemDebugContext)"
+    displayName: 'Check system debug context'
+
+  - script: |
+      if [ "$(systemDebugContext)" == "true" ]; then
+        echo "Debug context is enabled"
+      else
+        echo "Debug context is disabled"
+      fi
+    displayName: 'Conditional step based on variable'
