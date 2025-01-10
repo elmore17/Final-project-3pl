@@ -1,24 +1,16 @@
 trigger:
   branches:
     include:
-      - main  # Или любая другая ветка, например, 'develop'
-  paths:
-    include:
-      - '**/*.docx'  # Отслеживание изменений только в файлах .docx
+      - main
 
 pool:
-  vmImage: 'ubuntu-latest'  # Использование образа Ubuntu для выполнения пайплайна
+  vmImage: 'ubuntu-latest'
 
 steps:
-  - task: UsePythonVersion@0  # Использование Python для обработки .docx файлов
+  - task: Checkout@1
     inputs:
-      versionSpec: '3.x'  # Установка Python 3.x
+      fetchDepth: 1  # Это позволяет быстро извлекать последний коммит
 
   - script: |
-      python -m pip install --upgrade pip
-      pip install python-docx  # Установка библиотеки для работы с .docx файлами
-    displayName: 'Install python-docx'
-
-  - script: |
-      echo "No .docx files found to process"
-    displayName: 'Process .docx files'
+      echo "Repository successfully fetched with fetchDepth 1"
+    displayName: 'Check repository'
