@@ -1,42 +1,42 @@
 trigger:
   branches:
     include:
-      - main  # или любая другая ветка, например 'develop'
+      - main  # Или любая другая ветка, например, 'develop'
+  paths:
+    include:
+      - '**/*.docx'  # Отслеживание изменений только в файлах .docx
 
 pool:
-  vmImage: 'ubuntu-latest'  # Использование Ubuntu для сборки, можно выбрать другую платформу
-
-variables:
-  buildConfiguration: 'Release'  # Настройка конфигурации сборки (например, 'Release' или 'Debug')
+  vmImage: 'ubuntu-latest'  # Образ агента для выполнения пайплайна
 
 steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '7.x'  # Укажите версию .NET SDK, которую нужно использовать
+  - task: UsePythonVersion@0  # Использование Python (для обработки .docx файлов)
+    inputs:
+      versionSpec: '3.x'  # Установка нужной версии Python
 
-- task: Checkout@1  # Проверка исходного кода из репозитория
-  inputs:
-    clean: true
+  - script: |
+      python -m pip install --upgrade pip
+      pip install python-docx  # Установка библиотеки для работы с .docx файлами
+    displayName: 'Install dependencies'
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'restore'  # Восстановление зависимостей
-    projects: '**/*.csproj'  # Поиск всех .csproj файлов
+  - task: Checkout@1  # Проверка исходного кода из репозитория
+    inputs:
+      clean: true
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'build'  # Сборка проекта
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+  - script: |
+      # Обработка .docx файлов: например, извлечение текста из каждого файла
+      for file in $(find . -name "*.docx"); do
+        echo "Processing $file"
+        python -c "
+import docx
+doc = docx.Document('$file')
+text = '\n'.join([para.text for para in doc.paragraphs])
+print(f'Text in {file}:\\n{text[:100]}...')  # Вывод первых 100 символов текста для проверки
+        "
+      done
+    displayName: 'Process .docx files'
 
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'  # Публикация (подготовка артефактов для деплоя)
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    artifactName: 'drop'  # Имя артефакта
-    publishLocation: 'Container'  # Место хранения артефактов
+  - task: PublishBuildArtifacts@1  # Публикация артефактов, если нужно сохранить результат
+    inputs:
+      artifactName: 'processed-docx-files'  # Имя артефакта
+      publishLocation: 'Container'
