@@ -7,7 +7,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  systemDebugContext: 'true'  # Пример определения переменной
+  systemDebugContext: 'true'  # Пример переменной
 
 steps:
   - task: Checkout@1
