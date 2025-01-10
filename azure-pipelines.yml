@@ -1,24 +1,42 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  branches:
+    include:
+      - main  # или любая другая ветка, например 'develop'
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'  # Использование Ubuntu для сборки, можно выбрать другую платформу
+
+variables:
+  buildConfiguration: 'Release'  # Настройка конфигурации сборки (например, 'Release' или 'Debug')
 
 steps:
-- task: 6d15af64-176c-496d-b583-fd2ae21d4df4@1
+- task: UseDotNet@2
   inputs:
-    repository: self
-    fetchDepth: 1
-    
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+    packageType: 'sdk'
+    version: '7.x'  # Укажите версию .NET SDK, которую нужно использовать
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: Checkout@1  # Проверка исходного кода из репозитория
+  inputs:
+    clean: true
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'  # Восстановление зависимостей
+    projects: '**/*.csproj'  # Поиск всех .csproj файлов
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'  # Сборка проекта
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'  # Публикация (подготовка артефактов для деплоя)
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    artifactName: 'drop'  # Имя артефакта
+    publishLocation: 'Container'  # Место хранения артефактов
