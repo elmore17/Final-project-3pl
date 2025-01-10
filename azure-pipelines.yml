@@ -10,21 +10,10 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: Checkout@1
-  displayName: 'Checkout repository'
-  inputs:
-    repository: self
-    fetchDepth: 1
-    persistCredentials: true
-
-- task: CmdLine@2
+- script: echo Hello, world!
   displayName: 'Run a one-line script'
-  inputs:
-    script: echo Hello, world!
 
-- task: CmdLine@2
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
   displayName: 'Run a multi-line script'
-  inputs:
-    script: |
-      echo Add other tasks to build, test, and deploy your project.
-      echo See https://aka.ms/yaml
